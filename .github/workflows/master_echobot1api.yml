@@ -32,14 +32,15 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ${{env.DOTNET_ROOT}}/myapp 
+        
       - name: App Settings Variable Substitution
-          uses: microsoft/variable-substitution@v1
-          with:
-            files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
-          env:
-            storage_connectionStr: ${{ secrets.storage_connectionStr }}
-            storage_containerName: ${{ secrets.storage_containerName }}
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
+        env:
+          storage_connectionStr: ${{ secrets.storage_connectionStr }}
+          storage_containerName: ${{ secrets.storage_containerName }}
 
   deploy:
     runs-on: windows-latest
