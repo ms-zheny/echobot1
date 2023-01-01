@@ -33,14 +33,6 @@ jobs:
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp 
-        
-      - name: App Settings Variable Substitution
-        uses: microsoft/variable-substitution@v1
-        with:
-          files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
-        env:
-          StorageAccountConnectionString: ${{ secrets.STORAGE_CONNECTIONSTR }}
-          StorageContainerName: ${{ secrets.STORAGECONTAINERNAME }}
 
   deploy:
     runs-on: windows-latest
@@ -50,6 +42,14 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
+      - name: App Settings Variable Substitution
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
+        env:
+          StorageAccountConnectionString: ${{ secrets.STORAGE_CONNECTIONSTR }}
+          StorageContainerName: ${{ secrets.STORAGE_CONTAINERNAME }}
+          
       - name: Download artifact from build job
         uses: actions/download-artifact@v2
         with:
