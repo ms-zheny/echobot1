@@ -33,6 +33,8 @@ jobs:
         with:
           files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
         env:
+          MicrosoftAppId: ${{ secrets.MICROSOFTAPPID }}
+          MicrosoftAppPassword: ${{ secrets.MICROSOFTAPPPASSWORD }}
           StorageAccountConnectionString: ${{ secrets.STORAGE_CONNECTIONSTR }}
           StorageContainerName: ${{ secrets.STORAGE_CONTAINERNAME }}
 
