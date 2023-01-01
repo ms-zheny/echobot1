@@ -39,8 +39,8 @@ jobs:
         with:
           files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
         env:
-          storage_connectionStr: ${{ secrets.storage_connectionStr }}
-          storage_containerName: ${{ secrets.storage_containerName }}
+          storage_connectionStr: ${{ secrets.STORAGE_CONNECTIONSTR }}
+          storage_containerName: ${{ secrets.STORAGECONTAINERNAME }}
 
   deploy:
     runs-on: windows-latest
