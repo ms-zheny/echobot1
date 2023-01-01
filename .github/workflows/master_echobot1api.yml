@@ -33,7 +33,7 @@ jobs:
         with:
           files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
         env:
-          StorageAccountConnectionString: ${{ secrets.STORAGE_CONNECTIONSTR }}
+          StorageAccountConnectionString: ${{ STORAGE_CONNECTIONSTR }}
           StorageContainerName: "botstatedata"  
 
       - name: Upload artifact for deployment job
