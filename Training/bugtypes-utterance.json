@@ -1,0 +1,38 @@
+[
+    {
+        "language": "en-us",
+		"intent": "ReportBug",
+        "text": "my laptop power is down",
+        "entities":[ ]
+    },
+    {
+        "language": "en-us",
+        "intent": "ReportBug",
+        "text": "I can't turn on my laptop",
+         "entities":[ ]
+    },
+    {
+        "language": "en-us",
+        "intent": "ReportBug",
+        "text": "my computer is really slow",
+        "entities":[ ]
+    },
+    {
+        "language": "en-us",
+        "intent": "ReportBug",
+        "text": "I can't open this application",
+       "entities":[ ]
+    },
+    {
+        "language": "en-us",
+        "intent": "ReportBug",
+        "text": "I would like to report a spam",
+       "entities":[ ]
+    },
+    {
+        "language": "en-us",
+        "intent": "ReportBug",
+        "text": "There is a virus on my computer",
+       "entities":[ ]
+    }
+]

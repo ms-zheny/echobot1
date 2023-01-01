@@ -1,0 +1,38 @@
+[
+    {
+        "language": "en-us",
+		"intent": "ReportBug",
+        "text": "I want to submit a bug report for an issue I'm experiencing with microsoft word. the app is really slow and takes forever to start. You can reach me at 456-548-1201 at 2pm on Tuesdays",
+        "entities":[ ]
+    },
+	{
+        "language": "en-us",
+		"intent": "ReportBug",
+        "text": "I want to open report for a computer crash",
+        "entities":[ ]
+    },
+	{
+        "language": "en-us",
+		"intent": "ReportBug",
+        "text": "I want to open report for virus in chrome",
+        "entities":[ ]
+    },
+	{
+        "language": "en-us",
+		"intent": "ReportBug",
+        "text": "I want to open report for virus on my computer, I can reached at 872-879-5890",
+        "entities":[ ]
+    },
+	{
+        "language": "en-us",
+		"intent": "ReportBug",
+        "text": "I want to open report for an issue where my computer keeps crashing on me.",
+        "entities":[ ]
+    },
+	{
+        "language": "en-us",
+		"intent": "ReportBug",
+        "text": "I want to open report for my computers performance being poor.",
+        "entities":[ ]
+    }
+]

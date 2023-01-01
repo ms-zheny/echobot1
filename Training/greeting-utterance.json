@@ -1,0 +1,68 @@
+[
+    {
+        "intent": "Greeting",
+        "language": "en-us",
+        "text": "Hi",
+        "entities":[]
+    },
+    {
+        "language": "en-us",
+        "intent": "Greeting",
+        "text": "Hello",
+        "entities": []
+    },
+    {
+        "language": "en-us",
+        "intent": "Greeting",
+        "text": "How are you?",
+        "entities": []
+    },
+    {
+        "language": "en-us",
+        "intent": "Greeting",
+        "text": "Yoo",
+        "entities": []
+    },
+    {
+        "language": "en-us",
+        "intent": "Greeting",
+        "text": "Goday",
+        "entities": []
+    },
+    {
+        "language": "en-us",
+        "intent": "Greeting",
+        "text": "Morning",
+        "entities": []
+    },
+    {
+        "language": "en-us",
+        "intent": "Greeting",
+        "text": "Good Afternoon",
+        "entities": []
+    },
+    {
+        "language": "en-us",
+        "intent": "Greeting",
+        "text": "Good Evening",
+        "entities": []
+    },
+    {
+        "language": "en-us",
+        "intent": "Greeting",
+        "text": "what's up",
+        "entities": []
+    },
+    {
+        "language": "en-us",
+        "intent": "Greeting",
+        "text": "hey",
+        "entities": []
+    },
+    {
+        "language": "en-us",
+        "intent": "Greeting",
+        "text": "howdy",
+        "entities": []
+    }
+]

@@ -1,0 +1,62 @@
+[
+    {
+        "language": "en-us",
+		"intent": "ReportBug",
+        "text": "I would like to report an issue",
+        "entities":[ {
+                "category": "Bug",
+				"offset": 19,
+                "length": 5
+            }]
+    },
+    {
+        "language": "en-us",
+        "intent": "ReportBug",
+        "text": "There is a bug, I would like to report",
+         "entities":[ {
+                "category": "Bug",
+				"offset": 19,
+                "length": 5
+            }]
+    },
+    {
+        "language": "en-us",
+        "intent": "ReportBug",
+        "text": "This is not working",
+         "entities":[ {
+                "category": "Bug",
+				"offset": 7,
+                "length": 11
+            }]
+    },
+    {
+        "language": "en-us",
+        "intent": "ReportBug",
+        "text": "this is broken",
+        "entities":[ {
+                "category": "Bug",
+				"offset": 7,
+                "length": 5
+            }]
+    },
+    {
+        "language": "en-us",
+        "intent": "ReportBug",
+        "text": "How can I fix this?",
+         "entities":[ {
+                "category": "Bug",
+				"offset": 9,
+                "length": 5
+            }]
+    },
+    {
+        "language": "en-us",
+        "intent": "ReportBug",
+        "text": "It's a defact",
+        "entities":[ {
+                "category": "Bug",
+                "offset": 7,
+                "length": 5
+            }]
+    }
+]
