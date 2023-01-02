@@ -125,7 +125,7 @@ namespace EchoBot1.Dialogs
             await _stateService.BugReportDataAccessor.SetAsync(stepContext.Context, bugReportData);
 
 
-            return await stepContext.EndDialogAsync(cancellationToken, cancellationToken);
+            return await stepContext.EndDialogAsync(null, cancellationToken);
 
         }
 
