@@ -37,6 +37,10 @@ jobs:
           MicrosoftAppPassword: ${{ secrets.MICROSOFTAPPPASSWORD }}
           StorageAccountConnectionString: ${{ secrets.STORAGE_CONNECTIONSTR }}
           StorageContainerName: ${{ secrets.STORAGE_CONTAINERNAME }}
+          CluProjectName: ${{ secrets.CLU_ProjectName }}
+          CluDeploymentName: ${{ secrets.CLU_DeploymentName }}
+          CluAPIKey: ${{ secrets.CLU_APIKey }}
+          CluAPIHostName: ${{ secrets.CLU_APIHostName }}
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
