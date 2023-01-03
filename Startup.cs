@@ -5,9 +5,9 @@
 
 using EchoBot1.Bots;
 using EchoBot1.Dialogs;
+using EchoBot1.Recognizers;
 using EchoBot1.Services;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Azure.Blobs;
@@ -38,11 +38,13 @@ namespace EchoBot1
 
             // Create the Bot Framework Authentication to be used with the Bot Adapter.
             services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
-
+            
             // Create the Bot Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
-
+            
             ConfigureState(services);
+            
+            services.AddSingleton<CsmSupportRecognizer>();
 
             ConfigDialogs(services);
 

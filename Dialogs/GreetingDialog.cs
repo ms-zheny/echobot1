@@ -1,14 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using EchoBot1.Models;
 using EchoBot1.Services;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.Dialogs.Choices;
+using Microsoft.Bot.Schema;
+using Newtonsoft.Json;
 
 namespace EchoBot1.Dialogs
 {
-    public class GreetingDialog: ComponentDialog
+    public class GreetingDialog : ComponentDialog
     {
         private readonly StateService _stateService;
 
@@ -24,12 +29,14 @@ namespace EchoBot1.Dialogs
             var waterfallSteps = new WaterfallStep[]
             {
                 InitialStepAsync,
+                ChooseTypeStepAsync,
                 FinalStepAsync
             };
 
             // Add Named Dialogs
             AddDialog(new WaterfallDialog($"{nameof(GreetingDialog)}.mainFlow", waterfallSteps));
             AddDialog(new TextPrompt($"{nameof(GreetingDialog)}.name"));
+            AddDialog(new ChoicePrompt($"{nameof(GreetingDialog)}.choosetype"));
 
             // Set the starting Dialog
             InitialDialogId = $"{nameof(GreetingDialog)}.mainFlow";
@@ -55,7 +62,7 @@ namespace EchoBot1.Dialogs
             }
         }
 
-        private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext,
+        private async Task<DialogTurnResult> ChooseTypeStepAsync(WaterfallStepContext stepContext,
             CancellationToken cancellationToken)
         {
             UserProfile userProfile =
@@ -67,10 +74,57 @@ namespace EchoBot1.Dialogs
                 await _stateService.UserProfileAccessor.SetAsync(stepContext.Context, userProfile);
             }
 
-            var message = $"Hi {userProfile.Name}, How can I help you today?";
-            await stepContext.Context.SendActivityAsync(MessageFactory.Text(message, message), cancellationToken);
+            var choice = new List<string> { "Looking for support", "Report an Issue" };
 
-            return await stepContext.EndDialogAsync(null, cancellationToken);
+            return await stepContext.PromptAsync($"{nameof(GreetingDialog)}.choosetype",
+                new PromptOptions
+                {
+                    Prompt = MessageFactory.Text($"Hi {userProfile.Name}, How can I help you today?"),
+                    Choices = ChoiceFactory.ToChoices(choice),
+                    Style = ListStyle.HeroCard
+
+                },
+                cancellationToken);
+        }
+
+
+        private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext,
+            CancellationToken cancellationToken)
+        {
+            stepContext.Values["choosetype"] = ((FoundChoice)stepContext.Result).Value;
+
+            if (stepContext.Values["choosetype"].ToString() == "Looking for support")
+            {
+                await stepContext.EndDialogAsync(null, cancellationToken);
+
+                return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.bugReport", null, cancellationToken);
+            }
+
+            var comingSoonCard = CreateAdaptiveCardAttachment();
+            var response = MessageFactory.Attachment(comingSoonCard, ssml: "Coming Soon!");
+            await stepContext.Context.SendActivityAsync(response, cancellationToken);
+            await stepContext.Context.SendActivityAsync(MessageFactory.Text("Goodbye"), cancellationToken);
+
+            return await stepContext.CancelAllDialogsAsync(cancellationToken);
+        }
+
+
+        private Attachment CreateAdaptiveCardAttachment()
+        {
+            var cardResourcePath = "EchoBot1.Cards.comingSoonCard.json";
+
+            using (var stream = GetType().Assembly.GetManifestResourceStream(cardResourcePath))
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    var adaptiveCard = reader.ReadToEnd();
+                    return new Attachment()
+                    {
+                        ContentType = "application/vnd.microsoft.card.adaptive",
+                        Content = JsonConvert.DeserializeObject(adaptiveCard),
+                    };
+                }
+            }
         }
     }
 }

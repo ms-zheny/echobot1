@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EchoBot1.Helpers;
 using EchoBot1.Services;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
@@ -40,6 +39,28 @@ namespace EchoBot1.Bots
 
             await _dialog.Run(turnContext, _stateService.DialogStateAccessor, cancellationToken);
 
+        }
+
+        //When members are invited into a conversation.
+        protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var heroCard = new HeroCard
+            {
+                Title = "Welcome",
+                Subtitle = "CSM personal assistant",
+                Text = "Hello, my name is Eric your personal bot assistant.",
+                Images = new List<CardImage> { new CardImage("https://csmbotstatestorage.blob.core.windows.net/botassets/BOT.jpg") }
+            };
+
+            foreach (var member in membersAdded)
+            {
+                if (member.Id != turnContext.Activity.Recipient.Id)
+                {
+                    var message = MessageFactory.Attachment(heroCard.ToAttachment());
+                    await turnContext.SendActivityAsync(message, cancellationToken);
+                    //await turnContext.SendActivityAsync(MessageFactory.Text(welcomeText, welcomeText), cancellationToken);
+                }
+            }
         }
     }
 }

@@ -1,0 +1,48 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.0",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "items": [
+            {
+              "type": "Image",
+              "style": "Person",
+              "url": "https://csmbotstatestorage.blob.core.windows.net/botassets/comingsoon.png",
+              "size": "Small"
+            }
+          ],
+          "width": "auto"
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "spacing": "None",
+              "text": "This feature isn't available right now. Sorry about the incovenience, you can click the GetHelp below for reporting an issue.",
+              "wrap": true,
+              "isVisible": true,
+              "horizontalAlignment": "Left",
+              "style": "columnHeader",
+              "fontType": "Default"
+            }
+          ],
+          "horizontalAlignment": "Center"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "GetHelp",
+      "url": "https://aka.ms/gethelp"
+    }
+  ]
+}
