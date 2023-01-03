@@ -105,6 +105,8 @@ namespace EchoBot1.Dialogs
             await stepContext.Context.SendActivityAsync(response, cancellationToken);
             await stepContext.Context.SendActivityAsync(MessageFactory.Text("Goodbye"), cancellationToken);
 
+
+
             return await stepContext.CancelAllDialogsAsync(cancellationToken);
         }
 

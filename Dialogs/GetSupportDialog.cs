@@ -158,6 +158,8 @@ namespace EchoBot1.Dialogs
             {
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("Goodbye"), cancellationToken);
 
+                await _stateService.UserState.ClearStateAsync(stepContext.Context, cancellationToken);
+
                 return await stepContext.EndDialogAsync(null, cancellationToken);
             }
         }
