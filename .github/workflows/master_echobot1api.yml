@@ -41,6 +41,11 @@ jobs:
           CluDeploymentName: ${{ secrets.CLU_DeploymentName }}
           CluAPIKey: ${{ secrets.CLU_APIKey }}
           CluAPIHostName: ${{ secrets.CLU_APIHostName }}
+          CqaProjectName: ${{ secrets.CQA_ProjectName }}
+          CqaDeploymentName: ${{ secrets.CQA_DeploymentName }}
+          CqaAPIKey: ${{ secrets.CQA_APIKey }}
+          CqaAPIHostName: ${{ secrets.CQA_APIHostName }}
+          
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
