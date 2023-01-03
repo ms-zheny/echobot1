@@ -32,7 +32,7 @@ namespace EchoBot1.Dialogs
 
             // Add Named Dialogs
             AddDialog(new GreetingDialog($"{nameof(MainDialog)}.greeting", _stateService));
-            AddDialog(new BugReportDialog($"{nameof(MainDialog)}.bugReport", _stateService, _cluRecognizer));
+            AddDialog(new GetSupportDialog($"{nameof(MainDialog)}.bugReport", _stateService, _cluRecognizer));
 
             AddDialog(new WaterfallDialog($"{nameof(MainDialog)}.mainFlow", waterfallSteps));
 
