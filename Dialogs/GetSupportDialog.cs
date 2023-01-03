@@ -1,15 +1,14 @@
-﻿using EchoBot1.Models;
-using EchoBot1.Services;
+﻿using EchoBot1.Services;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
-using EchoBot1.CognitiveModels;
 using Microsoft.Bot.Builder.Dialogs.Choices;
 using Microsoft.Bot.Schema;
 using EchoBot1.Recognizers;
+using Azure.AI.Language.QuestionAnswering;
 
 namespace EchoBot1.Dialogs
 {
@@ -17,11 +16,13 @@ namespace EchoBot1.Dialogs
     {
         private readonly StateService _stateService;
         private readonly CsmSupportRecognizer _cluRecognizer;
+        private readonly CsmSupportQnARecognizer _cqaARecognizer;
 
-        public GetSupportDialog(string dialogId, StateService stateService, CsmSupportRecognizer cluRecognizer) : base(dialogId)
+        public GetSupportDialog(string dialogId, StateService stateService, CsmSupportRecognizer cluRecognizer, CsmSupportQnARecognizer cqaRecognizer) : base(dialogId)
         {
             _stateService = stateService ?? throw new ArgumentException(nameof(stateService));
             _cluRecognizer = cluRecognizer;
+            _cqaARecognizer = cqaRecognizer;
 
             InitializeWaterfallDialog();
         }
@@ -70,70 +71,87 @@ namespace EchoBot1.Dialogs
         {
             stepContext.Values["description"] = (string)stepContext.Result;
 
-            var cluResult = await _cluRecognizer.RecognizeAsync<CsmSupport>(stepContext.Context, cancellationToken);
-            CsmRequestDetails csmRequest;
+            var answerResult =
+                _cqaARecognizer.AskQuestionAsync((string)stepContext.Result, stepContext.Context, cancellationToken);
 
-            switch (cluResult.GetTopIntent().intent)
+
+            foreach (KnowledgeBaseAnswer answer in answerResult.Result.Answers)
             {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text(answer.Answer), cancellationToken);
+                
+            }
 
-                case CsmSupport.Intent.GetSupport:
+            return await stepContext.NextAsync(answerResult, cancellationToken);
 
-                    csmRequest = new CsmRequestDetails()
-                    {
-                        RequestType = cluResult.Entities.GetSupportCategory(),
-                        ResponseDetails = (string)stepContext.Values["description"]
-                    };
+            //var cluResult = await _cluRecognizer.RecognizeAsync<CsmSupport>(stepContext.Context, cancellationToken);
+            //CsmRequestDetails csmRequest;
 
-                    return await stepContext.NextAsync(csmRequest, cancellationToken);
+            //switch (cluResult.GetTopIntent().intent)
+            //{
 
-                default:
-                    var choice = new List<string> { "CSM Operation", "Azure Technical Question", "Microsoft Programs" };
+            //    case CsmSupport.Intent.GetSupport:
 
-                    return await stepContext.PromptAsync($"{nameof(GetSupportDialog)}.request",
-                        new PromptOptions
-                        {
-                            Prompt = MessageFactory.Text("Sorry, I don't understand the query, Can you please select what you are asking about?"),
-                            Choices = ChoiceFactory.ToChoices(choice),
-                            Style = ListStyle.HeroCard
-                        },
-                        cancellationToken);
+            //        csmRequest = new CsmRequestDetails()
+            //        {
+            //            RequestType = cluResult.Entities.GetSupportCategory(),
+            //            ResponseDetails = (string)stepContext.Values["description"]
+            //        };
 
-            };
+            //        return await stepContext.NextAsync(csmRequest, cancellationToken);
+
+            //    default:
+            //        var choice = new List<string> { "CSM Operation", "Azure Technical Question", "Microsoft Programs" };
+
+            //        return await stepContext.PromptAsync($"{nameof(GetSupportDialog)}.request",
+            //            new PromptOptions
+            //            {
+            //                Prompt = MessageFactory.Text("Sorry, I don't understand the query, Can you please select what you are asking about?"),
+            //                Choices = ChoiceFactory.ToChoices(choice),
+            //                Style = ListStyle.HeroCard
+            //            },
+            //            cancellationToken);
+
+            //};
         }
+
+
+
+
 
         private async Task<DialogTurnResult> SummaryStepAsync(WaterfallStepContext stepContext,
             CancellationToken cancellationToken)
         {
-            if (stepContext.Result.GetType().Name == "FoundChoice")
-            {
-                stepContext.Values["request"] = ((FoundChoice)stepContext.Result).Value;
-            }
-            else
-            {
-                stepContext.Values["request"] = ((CsmRequestDetails)stepContext.Result).RequestType;
-            }
 
-            UserProfile userProfile =
-                await _stateService.UserProfileAccessor.GetAsync(stepContext.Context, () => new UserProfile());
+            //if (stepContext.Result.GetType().Name == "FoundChoice")
+            //{
+            //    stepContext.Values["request"] = ((FoundChoice)stepContext.Result).Value;
+            //}
+            //else
+            //{
+            //    stepContext.Values["request"] = ((CsmRequestDetails)stepContext.Result).RequestType;
+            //}
 
-            BugReportData bugReportData =
-                await _stateService.BugReportDataAccessor.GetAsync(stepContext.Context, () => new());
+            //UserProfile userProfile =
+            //    await _stateService.UserProfileAccessor.GetAsync(stepContext.Context, () => new UserProfile());
+
+            //BugReportData bugReportData =
+            //    await _stateService.BugReportDataAccessor.GetAsync(stepContext.Context, () => new());
 
 
-            bugReportData.Name = userProfile.Name;
-            bugReportData.Bug = (string)stepContext.Values["request"];
-            bugReportData.Description = (string)stepContext.Values["description"];
-            await _stateService.BugReportDataAccessor.SetAsync(stepContext.Context, bugReportData);
+            //bugReportData.Name = userProfile.Name;
+            //bugReportData.Bug = (string)stepContext.Values["request"];
+            //bugReportData.Description = (string)stepContext.Values["description"];
+            //await _stateService.BugReportDataAccessor.SetAsync(stepContext.Context, bugReportData);
 
-            var heroCard = new HeroCard
-            {
-                Title = "Response",
-                Subtitle = "Find intention",
-                Text = $"Thanks for asking about the {bugReportData.Bug}.  Here is what I found: --[response will be return from QnA maker]-- coming soon."
-            };
+            //var heroCard = new HeroCard
+            //{
+            //    Title = "Response",
+            //    Subtitle = "Find intention",
+            //    Text = $"Thanks for asking about the {bugReportData.Bug}.  Here is what I found: --[response will be return from QnA maker]-- coming soon."
+            //};
 
-            var summary = MessageFactory.Attachment(heroCard.ToAttachment());
-            await stepContext.Context.SendActivityAsync(summary, cancellationToken);
+            //var summary = MessageFactory.Attachment(heroCard.ToAttachment());
+            //await stepContext.Context.SendActivityAsync(summary, cancellationToken);
 
             var choice = new List<string> { "Yes", "No" };
             return await stepContext.PromptAsync($"{nameof(GetSupportDialog)}.summary", new PromptOptions

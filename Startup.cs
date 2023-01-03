@@ -46,6 +46,8 @@ namespace EchoBot1
             
             services.AddSingleton<CsmSupportRecognizer>();
 
+            services.AddSingleton<CsmSupportQnARecognizer>();
+
             ConfigDialogs(services);
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.

@@ -1,7 +1,6 @@
 ﻿using EchoBot1.Services;
 using Microsoft.Bot.Builder.Dialogs;
 using System;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading;
 using EchoBot1.Recognizers;
@@ -13,11 +12,13 @@ namespace EchoBot1.Dialogs
     {
         private readonly StateService _stateService;
         private readonly CsmSupportRecognizer _cluRecognizer;
+        private readonly CsmSupportQnARecognizer _cqaRecognizer;
 
-        public MainDialog(StateService stateService, CsmSupportRecognizer cluRecognizer) : base(nameof(MainDialog))
+        public MainDialog(StateService stateService, CsmSupportRecognizer cluRecognizer, CsmSupportQnARecognizer cqaRecognizer) : base(nameof(MainDialog))
         {
             _stateService = stateService ?? throw new ArgumentException(nameof(stateService));
             _cluRecognizer = cluRecognizer;
+            _cqaRecognizer = cqaRecognizer;
 
             InitializeWaterfallDialog();
         }
@@ -32,7 +33,7 @@ namespace EchoBot1.Dialogs
 
             // Add Named Dialogs
             AddDialog(new GreetingDialog($"{nameof(MainDialog)}.greeting", _stateService));
-            AddDialog(new GetSupportDialog($"{nameof(MainDialog)}.bugReport", _stateService, _cluRecognizer));
+            AddDialog(new GetSupportDialog($"{nameof(MainDialog)}.bugReport", _stateService, _cluRecognizer, _cqaRecognizer));
 
             AddDialog(new WaterfallDialog($"{nameof(MainDialog)}.mainFlow", waterfallSteps));
 
