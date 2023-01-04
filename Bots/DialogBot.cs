@@ -7,6 +7,7 @@ using EchoBot1.Services;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace EchoBot1.Bots
@@ -16,12 +17,14 @@ namespace EchoBot1.Bots
         protected readonly Dialog _dialog;
         protected readonly StateService _stateService;
         protected readonly ILogger _logger;
+        protected readonly IConfiguration _configuration;
 
-        public DialogBot(T dialog, StateService stateService, ILogger<DialogBot<T>> logger)
+        public DialogBot(T dialog, StateService stateService, ILogger<DialogBot<T>> logger, IConfiguration configuration)
         {
             _dialog = dialog ?? throw new ArgumentException(nameof(dialog));
             _stateService = stateService ?? throw new ArgumentException(nameof(stateService));
             _logger = logger ?? throw new ArgumentException(nameof(logger));
+            _configuration = configuration;
         }
 
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
@@ -49,7 +52,7 @@ namespace EchoBot1.Bots
                 Title = "Welcome",
                 Subtitle = "CSM personal assistant",
                 Text = "Hello, my name is Eric your personal bot assistant.",
-                Images = new List<CardImage> { new CardImage("https://csmbotstatestorage.blob.core.windows.net/botassets/BOT.jpg") }
+                Images = new List<CardImage> { new CardImage($"https://csmbotstatestorage.blob.core.windows.net/botassets/BOT.jpg{_configuration["StorageSASToken"]}") }
             };
 
             foreach (var member in membersAdded)

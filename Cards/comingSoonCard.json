@@ -12,7 +12,7 @@
             {
               "type": "Image",
               "style": "Person",
-              "url": "https://csmbotstatestorage.blob.core.windows.net/botassets/comingsoon.png",
+              "url": "https://csmbotstatestorage.blob.core.windows.net/botassets/comingsoon.png[#StorageSASToken#]",
               "size": "Small"
             }
           ],

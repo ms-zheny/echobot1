@@ -9,17 +9,22 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Choices;
 using Microsoft.Bot.Schema;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Recognizers.Text.Config;
 using Newtonsoft.Json;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace EchoBot1.Dialogs
 {
     public class GreetingDialog : ComponentDialog
     {
         private readonly StateService _stateService;
+        private readonly IConfiguration _configuration;
 
-        public GreetingDialog(string dialogId, StateService stateService) : base(dialogId)
+        public GreetingDialog(string dialogId, StateService stateService, IConfiguration configuration) : base(dialogId)
         {
             _stateService = stateService ?? throw new ArgumentException(nameof(stateService));
+            _configuration = configuration;
 
             InitializeWaterfallDialog();
         }
@@ -120,6 +125,7 @@ namespace EchoBot1.Dialogs
                 using (var reader = new StreamReader(stream))
                 {
                     var adaptiveCard = reader.ReadToEnd();
+                    adaptiveCard = adaptiveCard.Replace("[#StorageSASToken#]", _configuration["StorageSASToken"]);
                     return new Attachment()
                     {
                         ContentType = "application/vnd.microsoft.card.adaptive",

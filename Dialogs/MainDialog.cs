@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using System.Threading;
 using EchoBot1.Recognizers;
 using EchoBot1.CognitiveModels;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Recognizers.Text.Config;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace EchoBot1.Dialogs
 {
@@ -13,12 +16,14 @@ namespace EchoBot1.Dialogs
         private readonly StateService _stateService;
         private readonly CsmSupportRecognizer _cluRecognizer;
         private readonly CsmSupportQnARecognizer _cqaRecognizer;
+        private readonly IConfiguration _iconfiguration;
 
-        public MainDialog(StateService stateService, CsmSupportRecognizer cluRecognizer, CsmSupportQnARecognizer cqaRecognizer) : base(nameof(MainDialog))
+        public MainDialog(StateService stateService, CsmSupportRecognizer cluRecognizer, CsmSupportQnARecognizer cqaRecognizer, IConfiguration configuration) : base(nameof(MainDialog))
         {
             _stateService = stateService ?? throw new ArgumentException(nameof(stateService));
             _cluRecognizer = cluRecognizer;
             _cqaRecognizer = cqaRecognizer;
+            _iconfiguration = configuration;
 
             InitializeWaterfallDialog();
         }
@@ -32,7 +37,7 @@ namespace EchoBot1.Dialogs
             };
 
             // Add Named Dialogs
-            AddDialog(new GreetingDialog($"{nameof(MainDialog)}.greeting", _stateService));
+            AddDialog(new GreetingDialog($"{nameof(MainDialog)}.greeting", _stateService, _iconfiguration));
             AddDialog(new GetSupportDialog($"{nameof(MainDialog)}.bugReport", _stateService, _cluRecognizer, _cqaRecognizer));
 
             AddDialog(new WaterfallDialog($"{nameof(MainDialog)}.mainFlow", waterfallSteps));
