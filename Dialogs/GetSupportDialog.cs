@@ -9,8 +9,10 @@ using System.Threading;
 using Microsoft.Bot.Builder.Dialogs.Choices;
 using Microsoft.Bot.Schema;
 using EchoBot1.Recognizers;
-using Azure.AI.Language.QuestionAnswering;
 using EchoBot1.CognitiveModels;
+using Newtonsoft.Json;
+using System.IO;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace EchoBot1.Dialogs
 {
@@ -19,12 +21,19 @@ namespace EchoBot1.Dialogs
         private readonly StateService _stateService;
         private readonly CsmSupportRecognizer _cluRecognizer;
         private readonly CsmSupportQnARecognizer _cqaARecognizer;
+        private readonly IConfiguration _iconfiguration;
 
-        public GetSupportDialog(string dialogId, StateService stateService, CsmSupportRecognizer cluRecognizer, CsmSupportQnARecognizer cqaRecognizer) : base(dialogId)
+        public GetSupportDialog(
+            string dialogId,
+            StateService stateService,
+            CsmSupportRecognizer cluRecognizer,
+            CsmSupportQnARecognizer cqaRecognizer,
+            IConfiguration configuration) : base(dialogId)
         {
             _stateService = stateService ?? throw new ArgumentException(nameof(stateService));
             _cluRecognizer = cluRecognizer;
             _cqaARecognizer = cqaRecognizer;
+            _iconfiguration= configuration;
 
             InitializeWaterfallDialog();
         }
@@ -91,9 +100,9 @@ namespace EchoBot1.Dialogs
             var answerResult =
                 _cqaARecognizer.AskQuestionAsync(question, stepContext.Context, cancellationToken);
 
-
             var answer = answerResult.Result.Answers.OrderByDescending(c => c.Confidence).ToList().FirstOrDefault()!.Answer;
-            await stepContext.Context.SendActivityAsync(MessageFactory.Text(answer), cancellationToken);
+            var answerCard = CreateAdaptiveCardAttachment(answer);
+            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(answerCard, ssml: "QnA"), cancellationToken);
             
             //foreach (KnowledgeBaseAnswer answer in answerResult.Result.Answers)
             //{
@@ -161,6 +170,25 @@ namespace EchoBot1.Dialogs
                 await _stateService.UserState.ClearStateAsync(stepContext.Context, cancellationToken);
 
                 return await stepContext.EndDialogAsync(null, cancellationToken);
+            }
+        }
+
+        private Attachment CreateAdaptiveCardAttachment(string message)
+        {
+            var cardResourcePath = "EchoBot1.Cards.answerCard.json";
+
+            using (var stream = GetType().Assembly.GetManifestResourceStream(cardResourcePath))
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    var adaptiveCard = reader.ReadToEnd();
+                    adaptiveCard = adaptiveCard.Replace("[#ANSWERING_TOKEN]", message);
+                    return new Attachment()
+                    {
+                        ContentType = "application/vnd.microsoft.card.adaptive",
+                        Content = JsonConvert.DeserializeObject(adaptiveCard),
+                    };
+                }
             }
         }
     }

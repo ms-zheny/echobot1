@@ -6,13 +6,15 @@ using EchoBot1.Helpers;
 using EchoBot1.Services;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.Teams;
 using Microsoft.Bot.Schema;
+using Microsoft.Bot.Schema.Teams;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace EchoBot1.Bots
 {
-    public class DialogBot<T>: ActivityHandler where T: Dialog{
+    public class DialogBot<T>: TeamsActivityHandler where T: Dialog{
     
         protected readonly Dialog _dialog;
         protected readonly StateService _stateService;
@@ -60,9 +62,33 @@ namespace EchoBot1.Bots
             {
                 if (member.Id != turnContext.Activity.Recipient.Id)
                 {
-                    var message = MessageFactory.Attachment(heroCard.ToAttachment());
-                    await turnContext.SendActivityAsync(message, cancellationToken);
+                    await turnContext.SendActivityAsync(MessageFactory.Attachment(heroCard.ToAttachment()), cancellationToken);
                     //await turnContext.SendActivityAsync(MessageFactory.Text(welcomeText, welcomeText), cancellationToken);
+                }
+            }
+        }
+
+        protected override async Task OnTeamsMembersRemovedAsync(IList<TeamsChannelAccount> membersRemoved, TeamInfo teamInfo, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var heroCard = new HeroCard
+            {
+                Title = "Welcome",
+                Subtitle = "CSM personal assistant",
+                Text = "Hello, my name is Eric your personal bot assistant.",
+                Images = new List<CardImage> { new CardImage($"https://echobot1api.azurewebsites.net/assets/images/BOT.jpg") }
+                //Images = new List<CardImage> { new CardImage($"https://csmbotstatestorage.blob.core.windows.net/botassets/BOT.jpg{_configuration["StorageSASToken"]}") }
+            };
+
+            foreach (TeamsChannelAccount member in membersRemoved)
+            {
+                if (member.Id == turnContext.Activity.Recipient.Id)
+                {
+                    // The bot was removed
+                    // You should clear any cached data you have for this team
+                }
+                else
+                {   
+                    await turnContext.SendActivityAsync(MessageFactory.Attachment(heroCard.ToAttachment()), cancellationToken);
                 }
             }
         }

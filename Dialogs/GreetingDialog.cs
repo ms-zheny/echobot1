@@ -9,8 +9,6 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Choices;
 using Microsoft.Bot.Schema;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Recognizers.Text.Config;
 using Newtonsoft.Json;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 

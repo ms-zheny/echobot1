@@ -1,0 +1,42 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.0",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "items": [
+            {
+              "type": "Image",
+              "style": "Person",
+              "url": "https://echobot1api.azurewebsites.net/assets/images/qna.png",
+              "size": "Small"
+            }
+          ],
+          "width": "auto"
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "spacing": "None",
+              "text": "[#ANSWERING_TOKEN]",
+              "wrap": true,
+              "isVisible": true,
+              "horizontalAlignment": "Left",
+              "style": "columnHeader",
+              "fontType": "Default"
+            }
+          ],
+          "horizontalAlignment": "Center"
+        }
+      ]
+    }
+  ],
+  "actions": []
+}
