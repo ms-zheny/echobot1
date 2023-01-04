@@ -33,8 +33,10 @@ jobs:
         with:
           files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
         env:
+          MicrosoftAppType: ${{ secrets.MICROSOFTAPPTYPE }}
           MicrosoftAppId: ${{ secrets.MICROSOFTAPPID }}
           MicrosoftAppPassword: ${{ secrets.MICROSOFTAPPPASSWORD }}
+          MicrosoftAppTenantId: ${{ secrets.MICROSOFTAPPTENANTID }}
           StorageAccountConnectionString: ${{ secrets.STORAGE_CONNECTIONSTR }}
           StorageContainerName: ${{ secrets.STORAGE_CONTAINERNAME }}
           CluProjectName: ${{ secrets.CLU_ProjectName }}
