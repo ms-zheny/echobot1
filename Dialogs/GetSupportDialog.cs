@@ -3,6 +3,7 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.Bot.Builder.Dialogs.Choices;
@@ -91,11 +92,13 @@ namespace EchoBot1.Dialogs
                 _cqaARecognizer.AskQuestionAsync(question, stepContext.Context, cancellationToken);
 
 
-            foreach (KnowledgeBaseAnswer answer in answerResult.Result.Answers)
-            {
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text(answer.Answer), cancellationToken);
-
-            }
+            var answer = answerResult.Result.Answers.OrderByDescending(c => c.Confidence).ToList().FirstOrDefault()!.Answer;
+            await stepContext.Context.SendActivityAsync(MessageFactory.Text(answer), cancellationToken);
+            
+            //foreach (KnowledgeBaseAnswer answer in answerResult.Result.Answers)
+            //{
+            //    await stepContext.Context.SendActivityAsync(MessageFactory.Text(answer.Answer), cancellationToken);
+            //}
 
             return await stepContext.NextAsync(answerResult, cancellationToken);
 
@@ -127,46 +130,11 @@ namespace EchoBot1.Dialogs
 
             //};
         }
-
-
-
-
+        
 
         private async Task<DialogTurnResult> SummaryStepAsync(WaterfallStepContext stepContext,
             CancellationToken cancellationToken)
         {
-
-            //if (stepContext.Result.GetType().Name == "FoundChoice")
-            //{
-            //    stepContext.Values["request"] = ((FoundChoice)stepContext.Result).Value;
-            //}
-            //else
-            //{
-            //    stepContext.Values["request"] = ((CsmRequestDetails)stepContext.Result).RequestType;
-            //}
-
-            //UserProfile userProfile =
-            //    await _stateService.UserProfileAccessor.GetAsync(stepContext.Context, () => new UserProfile());
-
-            //BugReportData bugReportData =
-            //    await _stateService.BugReportDataAccessor.GetAsync(stepContext.Context, () => new());
-
-
-            //bugReportData.Name = userProfile.Name;
-            //bugReportData.Bug = (string)stepContext.Values["request"];
-            //bugReportData.Description = (string)stepContext.Values["description"];
-            //await _stateService.BugReportDataAccessor.SetAsync(stepContext.Context, bugReportData);
-
-            //var heroCard = new HeroCard
-            //{
-            //    Title = "Response",
-            //    Subtitle = "Find intention",
-            //    Text = $"Thanks for asking about the {bugReportData.Bug}.  Here is what I found: --[response will be return from QnA maker]-- coming soon."
-            //};
-
-            //var summary = MessageFactory.Attachment(heroCard.ToAttachment());
-            //await stepContext.Context.SendActivityAsync(summary, cancellationToken);
-
             var choice = new List<string> { "Yes", "No" };
             return await stepContext.PromptAsync($"{nameof(GetSupportDialog)}.summary", new PromptOptions
             {
@@ -174,7 +142,7 @@ namespace EchoBot1.Dialogs
                 Choices = ChoiceFactory.ToChoices(choice)
 
             }, cancellationToken);
-
+            
         }
 
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext,
