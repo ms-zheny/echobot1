@@ -52,7 +52,8 @@ namespace EchoBot1.Bots
                 Title = "Welcome",
                 Subtitle = "CSM personal assistant",
                 Text = "Hello, my name is Eric your personal bot assistant.",
-                Images = new List<CardImage> { new CardImage($"https://csmbotstatestorage.blob.core.windows.net/botassets/BOT.jpg{_configuration["StorageSASToken"]}") }
+                Images = new List<CardImage> { new CardImage($"https://echobot1api.azurewebsites.net/assets/images/BOT.jpg") }
+                //Images = new List<CardImage> { new CardImage($"https://csmbotstatestorage.blob.core.windows.net/botassets/BOT.jpg{_configuration["StorageSASToken"]}") }
             };
 
             foreach (var member in membersAdded)
