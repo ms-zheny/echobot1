@@ -9,6 +9,7 @@ using Microsoft.Bot.Builder.Dialogs.Choices;
 using Microsoft.Bot.Schema;
 using EchoBot1.Recognizers;
 using Azure.AI.Language.QuestionAnswering;
+using EchoBot1.CognitiveModels;
 
 namespace EchoBot1.Dialogs
 {
@@ -69,22 +70,35 @@ namespace EchoBot1.Dialogs
         private async Task<DialogTurnResult> SupportStepAsync(WaterfallStepContext stepContext,
             CancellationToken cancellationToken)
         {
-            stepContext.Values["description"] = (string)stepContext.Result;
+
+            var cluResult = await _cluRecognizer.RecognizeAsync<CsmSupport>(stepContext.Context, cancellationToken);
+
+            var formQuestions = new List<string>();
+
+            foreach (var entity in cluResult.Entities.Entities)
+            {
+                formQuestions.Add(entity.Text);
+            }
+
+            var question = string.Join(" ", formQuestions);
+
+            if (string.IsNullOrEmpty(question))
+            {
+                question = (string)stepContext.Result;
+            }
 
             var answerResult =
-                _cqaARecognizer.AskQuestionAsync((string)stepContext.Result, stepContext.Context, cancellationToken);
+                _cqaARecognizer.AskQuestionAsync(question, stepContext.Context, cancellationToken);
 
 
             foreach (KnowledgeBaseAnswer answer in answerResult.Result.Answers)
             {
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text(answer.Answer), cancellationToken);
-                
+
             }
 
             return await stepContext.NextAsync(answerResult, cancellationToken);
 
-            //var cluResult = await _cluRecognizer.RecognizeAsync<CsmSupport>(stepContext.Context, cancellationToken);
-            //CsmRequestDetails csmRequest;
 
             //switch (cluResult.GetTopIntent().intent)
             //{
