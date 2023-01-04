@@ -29,7 +29,8 @@
   </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Assets\Images\" />
+      <None Include="wwwroot\Assets\Images\BOT.jpg" />
+      <None Include="wwwroot\Assets\Images\comingsoon.png" />
     </ItemGroup>
 
 </Project>
