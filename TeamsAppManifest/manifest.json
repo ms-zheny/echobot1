@@ -34,30 +34,7 @@
       "isNotificationOnly": false,
       "supportsCalling": false,
       "supportsVideo": false,
-      "supportsFiles": false,
-      "commandLists": [
-        {
-          "scopes": [
-            "personal",
-            "groupchat",
-            "team"
-          ],
-          "commands": [
-            {
-              "title": "MentionMe",
-              "description": "Sends message with @mention of the sender"
-            },
-            {
-              "title": "Show Welcome",
-              "description": "Shows the welcome card"
-            },
-            {
-              "title": "MessageAllMembers",
-              "description": "Send 1 to 1 message to all members of the current conversation"
-            }
-          ]
-        }
-      ]
+      "supportsFiles": false
     }
   ],
   "permissions": [

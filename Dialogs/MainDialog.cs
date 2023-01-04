@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using System.Threading;
 using EchoBot1.Recognizers;
 using EchoBot1.CognitiveModels;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Recognizers.Text.Config;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace EchoBot1.Dialogs
@@ -39,7 +37,6 @@ namespace EchoBot1.Dialogs
             // Add Named Dialogs
             AddDialog(new GreetingDialog($"{nameof(MainDialog)}.greeting", _stateService, _iconfiguration));
             AddDialog(new GetSupportDialog($"{nameof(MainDialog)}.bugReport", _stateService, _cluRecognizer, _cqaRecognizer, _iconfiguration));
-
             AddDialog(new WaterfallDialog($"{nameof(MainDialog)}.mainFlow", waterfallSteps));
 
             // Set the starting Dialog

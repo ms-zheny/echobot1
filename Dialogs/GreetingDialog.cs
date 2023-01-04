@@ -31,14 +31,14 @@ namespace EchoBot1.Dialogs
         {
             var waterfallSteps = new WaterfallStep[]
             {
-                InitialStepAsync,
+                //InitialStepAsync,
                 ChooseTypeStepAsync,
                 FinalStepAsync
             };
 
             // Add Named Dialogs
             AddDialog(new WaterfallDialog($"{nameof(GreetingDialog)}.mainFlow", waterfallSteps));
-            AddDialog(new TextPrompt($"{nameof(GreetingDialog)}.name"));
+            //AddDialog(new TextPrompt($"{nameof(GreetingDialog)}.name"));
             AddDialog(new ChoicePrompt($"{nameof(GreetingDialog)}.choosetype"));
 
             // Set the starting Dialog
@@ -73,7 +73,7 @@ namespace EchoBot1.Dialogs
 
             if (string.IsNullOrEmpty(userProfile.Name))
             {
-                userProfile.Name = (string)stepContext.Result;
+                userProfile.Name = (string)stepContext.Context.Activity.From.Name;
                 await _stateService.UserProfileAccessor.SetAsync(stepContext.Context, userProfile);
             }
 

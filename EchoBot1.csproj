@@ -6,12 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Cards\answerCard.json" />
+    <Compile Remove="Bots\EchoBot.cs" />
+    <Compile Remove="Bots\GreetingBot.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Cards\adaptiveCard.json" />
     <Content Remove="Cards\comingSoonCard.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Cards\answerCard.json" />
+    <EmbeddedResource Include="Cards\adaptiveCard.json" />
     <EmbeddedResource Include="Cards\comingSoonCard.json" />
   </ItemGroup>
 

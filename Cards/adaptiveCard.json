@@ -25,7 +25,7 @@
             {
               "type": "TextBlock",
               "spacing": "None",
-              "text": "[#ANSWERING_TOKEN]",
+              "text": "[#Message_TOKEN]",
               "wrap": true,
               "isVisible": true,
               "horizontalAlignment": "Left",

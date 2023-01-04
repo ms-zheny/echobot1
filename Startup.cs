@@ -63,11 +63,11 @@ namespace EchoBot1
 
         public void ConfigureState(IServiceCollection services)
         {
-            //services.AddSingleton<IStorage, MemoryStorage>();
+            services.AddSingleton<IStorage, MemoryStorage>();
 
-            var storageConnectionStr = Configuration.GetSection("StorageAccountConnectionString").Value;
-            var storageContainerName= Configuration.GetSection("StorageContainerName").Value;
-            services.AddSingleton<IStorage>(new BlobsStorage(storageConnectionStr, storageContainerName));
+            //var storageConnectionStr = Configuration.GetSection("StorageAccountConnectionString").Value;
+            //var storageContainerName= Configuration.GetSection("StorageContainerName").Value;
+            //services.AddSingleton<IStorage>(new BlobsStorage(storageConnectionStr, storageContainerName));
 
             services.AddSingleton<UserState>();
 

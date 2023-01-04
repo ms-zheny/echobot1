@@ -66,15 +66,15 @@ namespace EchoBot1.Dialogs
                         "NOTE: CLU is not configured. To enable all capabilities, add 'CluProjectName', 'CluDeploymentName', 'CluAPIKey' and 'CluAPIHostName' to the appsettings.json file.",
                         inputHint: InputHints.IgnoringInput), cancellationToken);
 
-                return await stepContext.NextAsync(null, cancellationToken);
+                return await stepContext.NextAsync(stepContext.Context, cancellationToken);
             }
 
+            return await stepContext.PromptAsync($"{nameof(GetSupportDialog)}.description",
+                new PromptOptions
+                {
+                    Prompt =MessageFactory.Text("Can you please provide me some details")
 
-            return await stepContext.PromptAsync($"{nameof(GetSupportDialog)}.description", new PromptOptions
-            {
-                Prompt = MessageFactory.Text("Can you please provide me some details")
-
-            }, cancellationToken);
+                }, cancellationToken);
         }
 
         private async Task<DialogTurnResult> SupportStepAsync(WaterfallStepContext stepContext,
@@ -97,13 +97,12 @@ namespace EchoBot1.Dialogs
                 question = (string)stepContext.Result;
             }
 
-            var answerResult =
-                _cqaARecognizer.AskQuestionAsync(question, stepContext.Context, cancellationToken);
+            var answerResult = _cqaARecognizer.AskQuestionAsync(question, stepContext.Context, cancellationToken);
 
             var answer = answerResult.Result.Answers.OrderByDescending(c => c.Confidence).ToList().FirstOrDefault()!.Answer;
             var answerCard = CreateAdaptiveCardAttachment(answer);
             await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(answerCard, ssml: "QnA"), cancellationToken);
-            
+
             //foreach (KnowledgeBaseAnswer answer in answerResult.Result.Answers)
             //{
             //    await stepContext.Context.SendActivityAsync(MessageFactory.Text(answer.Answer), cancellationToken);
@@ -175,14 +174,14 @@ namespace EchoBot1.Dialogs
 
         private Attachment CreateAdaptiveCardAttachment(string message)
         {
-            var cardResourcePath = "EchoBot1.Cards.answerCard.json";
+            var cardResourcePath = "EchoBot1.Cards.adaptiveCard.json";
 
             using (var stream = GetType().Assembly.GetManifestResourceStream(cardResourcePath))
             {
                 using (var reader = new StreamReader(stream))
                 {
                     var adaptiveCard = reader.ReadToEnd();
-                    adaptiveCard = adaptiveCard.Replace("[#ANSWERING_TOKEN]", message);
+                    adaptiveCard = adaptiveCard.Replace("[#Message_TOKEN]", message);
                     return new Attachment()
                     {
                         ContentType = "application/vnd.microsoft.card.adaptive",
