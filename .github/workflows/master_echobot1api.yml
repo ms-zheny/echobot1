@@ -45,7 +45,7 @@ jobs:
           CqaDeploymentName: ${{ secrets.CQA_DeploymentName }}
           CqaAPIKey: ${{ secrets.CQA_APIKey }}
           CqaAPIHostName: ${{ secrets.CQA_APIHostName }}
-          
+          StorageSASToken: ${{ secrets.STORAGE_SASTOKEN }}
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
