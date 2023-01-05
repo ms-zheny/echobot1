@@ -13,11 +13,13 @@
   <ItemGroup>
     <Content Remove="Cards\adaptiveCard.json" />
     <Content Remove="Cards\comingSoonCard.json" />
+    <Content Remove="Cards\suggestionCard.json" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Cards\adaptiveCard.json" />
     <EmbeddedResource Include="Cards\comingSoonCard.json" />
+    <EmbeddedResource Include="Cards\suggestionCard.json" />
   </ItemGroup>
 
   <ItemGroup>

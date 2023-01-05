@@ -14,8 +14,9 @@ using Microsoft.Extensions.Logging;
 
 namespace EchoBot1.Bots
 {
-    public class DialogBot<T>: TeamsActivityHandler where T: Dialog{
-    
+    public class DialogBot<T> : TeamsActivityHandler where T : Dialog
+    {
+
         protected readonly Dialog _dialog;
         protected readonly StateService _stateService;
         protected readonly ILogger _logger;
@@ -33,8 +34,8 @@ namespace EchoBot1.Bots
         {
             await base.OnTurnAsync(turnContext, cancellationToken);
 
-            await _stateService.UserState.SaveChangesAsync(turnContext, false, cancellationToken);
             await _stateService.ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
+            await _stateService.UserState.SaveChangesAsync(turnContext, false, cancellationToken);
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext,
@@ -87,7 +88,7 @@ namespace EchoBot1.Bots
                     // You should clear any cached data you have for this team
                 }
                 else
-                {   
+                {
                     await turnContext.SendActivityAsync(MessageFactory.Attachment(heroCard.ToAttachment()), cancellationToken);
                 }
             }

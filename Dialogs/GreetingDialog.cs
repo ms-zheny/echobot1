@@ -32,14 +32,16 @@ namespace EchoBot1.Dialogs
             var waterfallSteps = new WaterfallStep[]
             {
                 //InitialStepAsync,
-                ChooseTypeStepAsync,
+                //ChooseTypeStepAsync,
+                OfferingStepAsync,
                 FinalStepAsync
             };
 
             // Add Named Dialogs
             AddDialog(new WaterfallDialog($"{nameof(GreetingDialog)}.mainFlow", waterfallSteps));
             //AddDialog(new TextPrompt($"{nameof(GreetingDialog)}.name"));
-            AddDialog(new ChoicePrompt($"{nameof(GreetingDialog)}.choosetype"));
+            //AddDialog(new ChoicePrompt($"{nameof(GreetingDialog)}.choosetype"));
+            AddDialog(new TextPrompt($"{nameof(GreetingDialog)}.offering"));
 
             // Set the starting Dialog
             InitialDialogId = $"{nameof(GreetingDialog)}.mainFlow";
@@ -90,27 +92,38 @@ namespace EchoBot1.Dialogs
                 cancellationToken);
         }
 
+        private async Task<DialogTurnResult> OfferingStepAsync(WaterfallStepContext stepContext,
+            CancellationToken cancellationToken)
+        {
+            var userProfile = await _stateService.UserProfileAccessor.GetAsync(stepContext.Context, () => new UserProfile());
+
+            if (string.IsNullOrEmpty(userProfile.Name))
+            {
+                userProfile.Name = (string)stepContext.Context.Activity.From.Name;
+                await _stateService.UserProfileAccessor.SetAsync(stepContext.Context, userProfile);
+            }
+
+            return await stepContext.PromptAsync($"{nameof(GreetingDialog)}.offering",
+                new PromptOptions {
+                    Prompt = MessageFactory.Text($"Hi {userProfile.Name}, How can I help you today?"),
+                },
+                cancellationToken);
+        }
 
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext,
             CancellationToken cancellationToken)
         {
-            stepContext.Values["choosetype"] = ((FoundChoice)stepContext.Result).Value;
+            stepContext.Values["offering"] = ((string)stepContext.Result);
 
-            if (stepContext.Values["choosetype"].ToString() == "Looking for support")
-            {
-                await stepContext.EndDialogAsync(null, cancellationToken);
+            await stepContext.EndDialogAsync(null, cancellationToken);
 
-                return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.bugReport", null, cancellationToken);
-            }
-
-            var comingSoonCard = CreateAdaptiveCardAttachment();
-            var response = MessageFactory.Attachment(comingSoonCard, ssml: "Coming Soon!");
-            await stepContext.Context.SendActivityAsync(response, cancellationToken);
-            await stepContext.Context.SendActivityAsync(MessageFactory.Text("Goodbye"), cancellationToken);
-
-
-
-            return await stepContext.CancelAllDialogsAsync(cancellationToken);
+            return await stepContext.BeginDialogAsync($"{nameof(MainDialog)}.bugReport", null, cancellationToken);
+            
+            //var comingSoonCard = CreateAdaptiveCardAttachment();
+            //var response = MessageFactory.Attachment(comingSoonCard, ssml: "Coming Soon!");
+            //await stepContext.Context.SendActivityAsync(response, cancellationToken);
+            //await stepContext.Context.SendActivityAsync(MessageFactory.Text("Goodbye"), cancellationToken);
+            //return await stepContext.CancelAllDialogsAsync(cancellationToken);
         }
 
 

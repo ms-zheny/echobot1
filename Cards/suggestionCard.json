@@ -1,0 +1,32 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.0",
+  "body": [
+    {
+      "type": "Image",
+      "style": "Person",
+      "url": "https://echobot1api.azurewebsites.net/assets/images/no-results-found.jpg",
+      "size": "Small"
+    },
+    {
+      "type": "TextBlock",
+      "text": "[#Message_TOKEN]",
+      "wrap": true,
+      "isVisible": true,
+      "fontType": "Default"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "[#Action1_TOKEN]",
+      "url": "[#Action1Link_TOKEN]"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "[#Action2_TOKEN]",
+      "url": "[#Action2Link_TOKEN]"
+    }
+  ]
+}

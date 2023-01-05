@@ -1,7 +1,7 @@
 {
   "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.14/MicrosoftTeams.schema.json",
   "manifestVersion": "1.14",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "id": "35d5ce8c-bc04-429a-a81b-6ea9f6730986",
   "packageName": "com.teams.csmbot",
   "developer": {

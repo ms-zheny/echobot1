@@ -13,6 +13,8 @@ using EchoBot1.CognitiveModels;
 using Newtonsoft.Json;
 using System.IO;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
+using Azure.AI.Language.QuestionAnswering;
+using EchoBot1.Models;
 
 namespace EchoBot1.Dialogs
 {
@@ -42,21 +44,23 @@ namespace EchoBot1.Dialogs
         {
             var waterfallSteps = new WaterfallStep[]
             {
-               DescriptionStepAsync,
-               SupportStepAsync,
+               ValidationStepAsync, 
+               ResponseStepAsync,
+               FeedbackStepAsync,
                SummaryStepAsync,
                FinalStepAsync
             };
 
             AddDialog(new WaterfallDialog($"{nameof(GetSupportDialog)}.mainFlow", waterfallSteps));
-            AddDialog(new TextPrompt($"{nameof(GetSupportDialog)}.description"));
-            AddDialog(new ChoicePrompt($"{nameof(GetSupportDialog)}.request"));
+            AddDialog(new TextPrompt($"{nameof(GetSupportDialog)}.validate"));
+            AddDialog(new ChoicePrompt($"{nameof(GetSupportDialog)}.response"));
+            AddDialog(new ChoicePrompt($"{nameof(GetSupportDialog)}.feedback"));
             AddDialog(new ChoicePrompt($"{nameof(GetSupportDialog)}.summary"));
-
+            
             InitialDialogId = $"{nameof(GetSupportDialog)}.mainFlow";
         }
 
-        private async Task<DialogTurnResult> DescriptionStepAsync(WaterfallStepContext stepContext,
+        private async Task<DialogTurnResult> ValidationStepAsync(WaterfallStepContext stepContext,
             CancellationToken cancellationToken)
         {
             if (!_cluRecognizer.IsConfigured)
@@ -69,44 +73,56 @@ namespace EchoBot1.Dialogs
                 return await stepContext.NextAsync(stepContext.Context, cancellationToken);
             }
 
-            return await stepContext.PromptAsync($"{nameof(GetSupportDialog)}.description",
-                new PromptOptions
-                {
-                    Prompt =MessageFactory.Text("Can you please provide me some details")
-
-                }, cancellationToken);
+            return await stepContext.NextAsync(stepContext.Context, cancellationToken);
         }
 
-        private async Task<DialogTurnResult> SupportStepAsync(WaterfallStepContext stepContext,
+        private async Task<DialogTurnResult> ResponseStepAsync(WaterfallStepContext stepContext,
             CancellationToken cancellationToken)
         {
 
+            stepContext.Values["question"] = stepContext.Context.Activity.Text;
+
+            //Get entities from CLU
             var cluResult = await _cluRecognizer.RecognizeAsync<CsmSupport>(stepContext.Context, cancellationToken);
-
-            var formQuestions = new List<string>();
-
-            foreach (var entity in cluResult.Entities.Entities)
-            {
-                formQuestions.Add(entity.Text);
-            }
-
+            var formQuestions = cluResult.Entities.Entities.Select(entity => entity.Text).ToList();
             var question = string.Join(" ", formQuestions);
-
             if (string.IsNullOrEmpty(question))
             {
-                question = (string)stepContext.Result;
+                question = stepContext.Context.Activity.Text;
             }
 
+            //Get answer from CQA
             var answerResult = _cqaARecognizer.AskQuestionAsync(question, stepContext.Context, cancellationToken);
-
             var answer = answerResult.Result.Answers.OrderByDescending(c => c.Confidence).ToList().FirstOrDefault()!.Answer;
-            var answerCard = CreateAdaptiveCardAttachment(answer);
-            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(answerCard, ssml: "QnA"), cancellationToken);
+            stepContext.Values["answer"] = answer;
 
-            //foreach (KnowledgeBaseAnswer answer in answerResult.Result.Answers)
-            //{
-            //    await stepContext.Context.SendActivityAsync(MessageFactory.Text(answer.Answer), cancellationToken);
-            //}
+
+            //If response is no answer found 
+            if (answer == "No answer found")
+            {
+                var suggestions = new List<AdaptiveCardActionData>()
+                {
+                    new AdaptiveCardActionData
+                    {
+                        Text = "Gearup",
+                        Link = "https://gearup.microsoft.com"
+                    },
+                    new AdaptiveCardActionData
+                    {
+                        Text = "Intranet",
+                        Link = "https://microsoft.sharepoint.com/"
+                    }
+                };
+
+                var answerCard = CreateAdaptiveCardAttachment("Sorry, we can't find any answer. We would like to suggest to check out the below links:", "EchoBot1.Cards.suggestionCard.json", suggestions);
+                await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(answerCard, ssml: "Suggestion"), cancellationToken);
+            }
+            else
+            {
+                var answerCard = CreateAdaptiveCardAttachment(answer, "EchoBot1.Cards.adaptiveCard.json");
+                await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(answerCard, ssml: "QnA"), cancellationToken);
+            }
+            
 
             return await stepContext.NextAsync(answerResult, cancellationToken);
 
@@ -138,20 +154,37 @@ namespace EchoBot1.Dialogs
 
             //};
         }
-        
+
+        private async Task<DialogTurnResult> FeedbackStepAsync(WaterfallStepContext stepContext,
+            CancellationToken cancellationToken)
+        {
+            var choice = new List<string> { "Yes, the answer is good.", "No, it's not what i'm asking." };
+            return await stepContext.PromptAsync($"{nameof(GetSupportDialog)}.feedback", new PromptOptions
+            {
+                Prompt = MessageFactory.Text("We would like to receive your feedback, Is the answer useful?"),
+                Choices = ChoiceFactory.ToChoices(choice),
+                Style = ListStyle.HeroCard
+            }, cancellationToken);
+        }
 
         private async Task<DialogTurnResult> SummaryStepAsync(WaterfallStepContext stepContext,
             CancellationToken cancellationToken)
         {
+            var message = $"Question:{(string)stepContext.Values["question"]} ,Answer:{stepContext.Values["answer"]}, Feedback: {((FoundChoice)stepContext.Result).Value}";
+            await CsmFeedbackProvider.ProvideFeedbackAsync(message, stepContext.Context, cancellationToken);
+            await stepContext.Context.SendActivityAsync(MessageFactory.Text("Thanks for for providing the feedback"), cancellationToken);
+
             var choice = new List<string> { "Yes", "No" };
             return await stepContext.PromptAsync($"{nameof(GetSupportDialog)}.summary", new PromptOptions
             {
                 Prompt = MessageFactory.Text("Is there anything else I can help you?"),
-                Choices = ChoiceFactory.ToChoices(choice)
+                Choices = ChoiceFactory.ToChoices(choice),
+                Style = ListStyle.SuggestedAction
 
             }, cancellationToken);
             
         }
+
 
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext,
             CancellationToken cancellationToken)
@@ -172,16 +205,28 @@ namespace EchoBot1.Dialogs
             }
         }
 
-        private Attachment CreateAdaptiveCardAttachment(string message)
-        {
-            var cardResourcePath = "EchoBot1.Cards.adaptiveCard.json";
 
-            using (var stream = GetType().Assembly.GetManifestResourceStream(cardResourcePath))
+
+        private Attachment CreateAdaptiveCardAttachment(string message, string adaptiveCardTemplate, List<AdaptiveCardActionData> actions=null)
+        {
+            using (var stream = GetType().Assembly.GetManifestResourceStream(adaptiveCardTemplate))
             {
                 using (var reader = new StreamReader(stream))
                 {
                     var adaptiveCard = reader.ReadToEnd();
                     adaptiveCard = adaptiveCard.Replace("[#Message_TOKEN]", message);
+
+                    if (actions != null)
+                    {
+                        var i = 1;
+                        foreach (var action in actions)
+                        {
+                            adaptiveCard = adaptiveCard.Replace($"[#Action{i}_TOKEN]", action.Text);
+                            adaptiveCard = adaptiveCard.Replace($"[#Action{i}Link_TOKEN]", action.Link);
+                            i++;
+                        }
+                    }
+                    
                     return new Attachment()
                     {
                         ContentType = "application/vnd.microsoft.card.adaptive",
