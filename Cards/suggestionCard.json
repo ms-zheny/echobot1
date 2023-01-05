@@ -5,9 +5,8 @@
   "body": [
     {
       "type": "Image",
-      "style": "Person",
       "url": "https://echobot1api.azurewebsites.net/assets/images/no-results-found.jpg",
-      "size": "Small"
+      "size": "stretch"
     },
     {
       "type": "TextBlock",
