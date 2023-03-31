@@ -30,6 +30,7 @@ namespace EchoBot1.Bots
             _configuration = configuration;
         }
 
+        
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
             await base.OnTurnAsync(turnContext, cancellationToken);
@@ -46,7 +47,7 @@ namespace EchoBot1.Bots
             await _dialog.Run(turnContext, _stateService.DialogStateAccessor, cancellationToken);
 
         }
-
+        
         //When members are invited into a conversation.
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
